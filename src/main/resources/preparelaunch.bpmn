@@ -104,7 +104,7 @@ system.out.println("going to the doctor")</camunda:script>
       <bpmn:incoming>Flow_0oosod8</bpmn:incoming>
       <bpmn:outgoing>Flow_13218j5</bpmn:outgoing>
       <bpmn:script>var system = java.lang.System;
-system.out.println('moving rocker to platform');</bpmn:script>
+system.out.println('moving rocket to platform');</bpmn:script>
     </bpmn:scriptTask>
   </bpmn:process>
   <bpmn:message id="Message_023oeuj" name="abortMission" />
