@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1lh6srd" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="launch-to-ISS" name="Launch to ISS" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="startLaunch">
+      <bpmn:outgoing>Flow_1egl1ru</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0np5pus" messageRef="Message_1m9i93y" />
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_1es3ghb" name="start Countdown">
+      <bpmn:incoming>Flow_1egl1ru</bpmn:incoming>
+      <bpmn:outgoing>Flow_1tw3r4l</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1egl1ru" sourceRef="StartEvent_1" targetRef="Activity_1es3ghb" />
+    <bpmn:sequenceFlow id="Flow_1tw3r4l" sourceRef="Activity_1es3ghb" targetRef="Event_1331x2v" />
+    <bpmn:intermediateCatchEvent id="Event_1331x2v" name="countdown">
+      <bpmn:incoming>Flow_1tw3r4l</bpmn:incoming>
+      <bpmn:outgoing>Flow_173xcc9</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1bvgrg1">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_173xcc9" sourceRef="Event_1331x2v" targetRef="Gateway_053ylvy" />
+    <bpmn:parallelGateway id="Gateway_053ylvy">
+      <bpmn:incoming>Flow_173xcc9</bpmn:incoming>
+      <bpmn:outgoing>Flow_12wng3o</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0eo9h9q</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_12wng3o" sourceRef="Gateway_053ylvy" targetRef="Activity_07eb95s" />
+    <bpmn:sequenceFlow id="Flow_0eo9h9q" sourceRef="Gateway_053ylvy" targetRef="Activity_1sm4h0w" />
+    <bpmn:sequenceFlow id="Flow_0oek6h5" sourceRef="Activity_07eb95s" targetRef="Gateway_07x7w9x" />
+    <bpmn:parallelGateway id="Gateway_07x7w9x">
+      <bpmn:incoming>Flow_0oek6h5</bpmn:incoming>
+      <bpmn:incoming>Flow_1ibwpl1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xv7yf0</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_1ibwpl1" sourceRef="Activity_1sm4h0w" targetRef="Gateway_07x7w9x" />
+    <bpmn:scriptTask id="Activity_07eb95s" name="Start Engine 1" scriptFormat="javascript">
+      <bpmn:incoming>Flow_12wng3o</bpmn:incoming>
+      <bpmn:outgoing>Flow_0oek6h5</bpmn:outgoing>
+      <bpmn:script>var system = java.lang.System;
+system.out.println("starting engine 1")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Activity_1sm4h0w" name="Start Engine 2" scriptFormat="javascript">
+      <bpmn:incoming>Flow_0eo9h9q</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ibwpl1</bpmn:outgoing>
+      <bpmn:script>var system = java.lang.System;
+system.out.println("starting engine 2")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_0xv7yf0" sourceRef="Gateway_07x7w9x" targetRef="Activity_0k2plfn" />
+    <bpmn:scriptTask id="Activity_0k2plfn" name="LiftOff" scriptFormat="javascript">
+      <bpmn:incoming>Flow_0xv7yf0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1q8d9mg</bpmn:outgoing>
+      <bpmn:script>var system = java.lang.System;
+system.out.println("Going in the air")</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1q8d9mg" sourceRef="Activity_0k2plfn" targetRef="Activity_14a6or7" />
+    <bpmn:sequenceFlow id="Flow_0d9dw47" sourceRef="Activity_14a6or7" targetRef="Activity_1rejsme" />
+    <bpmn:serviceTask id="Activity_14a6or7" name="Fly to ISS" camunda:expression="${execution.setVariable(&#34;state&#34;, &#34;flying&#34;)}">
+      <bpmn:incoming>Flow_1q8d9mg</bpmn:incoming>
+      <bpmn:outgoing>Flow_0d9dw47</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Activity_1rejsme" name="Dock on ISS">
+      <bpmn:incoming>Flow_0d9dw47</bpmn:incoming>
+      <bpmn:outgoing>Flow_0z87kvc</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="arrived_at_iss" name="Arrived at ISS">
+      <bpmn:incoming>Flow_0z87kvc</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0z87kvc" sourceRef="Activity_1rejsme" targetRef="arrived_at_iss" />
+  </bpmn:process>
+  <bpmn:message id="Message_1m9i93y" name="launchRocket" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="launch-to-ISS">
+      <bpmndi:BPMNEdge id="Flow_1egl1ru_di" bpmnElement="Flow_1egl1ru">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tw3r4l_di" bpmnElement="Flow_1tw3r4l">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="432" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_173xcc9_di" bpmnElement="Flow_173xcc9">
+        <di:waypoint x="468" y="177" />
+        <di:waypoint x="535" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12wng3o_di" bpmnElement="Flow_12wng3o">
+        <di:waypoint x="560" y="152" />
+        <di:waypoint x="560" y="80" />
+        <di:waypoint x="650" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0eo9h9q_di" bpmnElement="Flow_0eo9h9q">
+        <di:waypoint x="560" y="202" />
+        <di:waypoint x="560" y="270" />
+        <di:waypoint x="650" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oek6h5_di" bpmnElement="Flow_0oek6h5">
+        <di:waypoint x="750" y="80" />
+        <di:waypoint x="840" y="80" />
+        <di:waypoint x="840" y="152" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ibwpl1_di" bpmnElement="Flow_1ibwpl1">
+        <di:waypoint x="750" y="270" />
+        <di:waypoint x="840" y="270" />
+        <di:waypoint x="840" y="202" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xv7yf0_di" bpmnElement="Flow_0xv7yf0">
+        <di:waypoint x="865" y="177" />
+        <di:waypoint x="930" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1q8d9mg_di" bpmnElement="Flow_1q8d9mg">
+        <di:waypoint x="1030" y="177" />
+        <di:waypoint x="1090" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0d9dw47_di" bpmnElement="Flow_0d9dw47">
+        <di:waypoint x="1190" y="177" />
+        <di:waypoint x="1270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0z87kvc_di" bpmnElement="Flow_0z87kvc">
+        <di:waypoint x="1370" y="177" />
+        <di:waypoint x="1452" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_06s4rcb_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="168" y="202" width="58" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1es3ghb_di" bpmnElement="Activity_1es3ghb">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0nosce6_di" bpmnElement="Event_1331x2v">
+        <dc:Bounds x="432" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="424" y="202" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0f8k6ce_di" bpmnElement="Gateway_053ylvy">
+        <dc:Bounds x="535" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1lqo1hs_di" bpmnElement="Gateway_07x7w9x">
+        <dc:Bounds x="815" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0wemgs7_di" bpmnElement="Activity_07eb95s">
+        <dc:Bounds x="650" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fwrmpn_di" bpmnElement="Activity_1sm4h0w">
+        <dc:Bounds x="650" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0klc7jt_di" bpmnElement="Activity_0k2plfn">
+        <dc:Bounds x="930" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1735lj4_di" bpmnElement="Activity_14a6or7">
+        <dc:Bounds x="1090" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_157zzrq_di" bpmnElement="Activity_1rejsme">
+        <dc:Bounds x="1270" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_000brsv_di" bpmnElement="arrived_at_iss">
+        <dc:Bounds x="1452" y="159" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1437" y="202" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -46,7 +46,7 @@
       <bpmn:userTask id="Activity_0xbb9rw" name="checkHealth">
         <bpmn:extensionElements>
           <camunda:formData>
-            <camunda:formField id="healthOK" label="Is your health OK?" type="boolean" />
+            <camunda:formField id="healthOK" label="Is your health OK?" type="boolean" defaultValue="false" />
           </camunda:formData>
           <camunda:inputOutput>
             <camunda:outputParameter name="Output_0567co8" />
@@ -63,41 +63,54 @@
       <bpmn:sequenceFlow id="Flow_0apz8wl" sourceRef="Gateway_0ym6h12" targetRef="Event_0zrovzx" />
       <bpmn:sequenceFlow id="Flow_06e8j03" sourceRef="Activity_0qir926" targetRef="Gateway_0ym6h12" />
       <bpmn:serviceTask id="Activity_0qir926" name="advice doctor" camunda:expression="${execution.getProcessEngineServices().getRuntimeService().createMessageCorrelation(&#34;abortMission&#34;).correlateWithResult()}">
+        <bpmn:extensionElements>
+          <camunda:executionListener event="start">
+            <camunda:script scriptFormat="javascript">var system = java.lang.System;
+system.out.println("going to the doctor")</camunda:script>
+          </camunda:executionListener>
+        </bpmn:extensionElements>
         <bpmn:incoming>Flow_07wlo6m</bpmn:incoming>
         <bpmn:outgoing>Flow_06e8j03</bpmn:outgoing>
       </bpmn:serviceTask>
     </bpmn:subProcess>
-    <bpmn:task id="Activity_1cfdd8y" name="moveRocketToPlatform">
-      <bpmn:incoming>Flow_0oosod8</bpmn:incoming>
-      <bpmn:outgoing>Flow_13218j5</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:sequenceFlow id="Flow_0oosod8" sourceRef="Activity_0ffwgr3" targetRef="Activity_1cfdd8y" />
-    <bpmn:sequenceFlow id="Flow_13218j5" sourceRef="Activity_1cfdd8y" targetRef="Event_0t4gizk" />
+    <bpmn:subProcess id="Activity_0zzeygg" triggeredByEvent="true">
+      <bpmn:userTask id="Activity_1nd95ya" name="Verify aborting">
+        <bpmn:extensionElements>
+          <camunda:formData>
+            <camunda:formField id="abort" label="Health problematic?" type="boolean" defaultValue="false" />
+          </camunda:formData>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_04zlpa8</bpmn:incoming>
+        <bpmn:outgoing>Flow_19cp6q1</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:endEvent id="Event_0kymjb7" name="mission aborted">
+        <bpmn:incoming>Flow_19cp6q1</bpmn:incoming>
+        <bpmn:terminateEventDefinition id="TerminateEventDefinition_16obfnp" />
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_04zlpa8" sourceRef="Event_0j9oz9y" targetRef="Activity_1nd95ya" />
+      <bpmn:startEvent id="Event_0j9oz9y" name="abort mission">
+        <bpmn:outgoing>Flow_04zlpa8</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_1yi1f5r" messageRef="Message_023oeuj" />
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_19cp6q1" sourceRef="Activity_1nd95ya" targetRef="Event_0kymjb7" />
+    </bpmn:subProcess>
     <bpmn:endEvent id="Event_0t4gizk" name="launchReady">
       <bpmn:incoming>Flow_13218j5</bpmn:incoming>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_157g1qd" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_157g1qd" messageRef="Message_0ig1wgm" camunda:expression="${execution.getProcessEngineServices().getRuntimeService().createMessageCorrelation(&#34;launchRocket&#34;).correlateWithResult()}" />
     </bpmn:endEvent>
-    <bpmn:startEvent id="Event_0j9oz9y" name="abort mission">
-      <bpmn:outgoing>Flow_0agkuqx</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0arhi0v" messageRef="Message_023oeuj" />
-    </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0agkuqx" sourceRef="Event_0j9oz9y" targetRef="Event_0kymjb7" />
-    <bpmn:endEvent id="Event_0kymjb7" name="mission aborted">
-      <bpmn:incoming>Flow_0agkuqx</bpmn:incoming>
-      <bpmn:terminateEventDefinition id="TerminateEventDefinition_1x794d9" />
-    </bpmn:endEvent>
-    <bpmn:group id="Group_1qjhl91" categoryValueRef="CategoryValue_0bbnabu" />
+    <bpmn:sequenceFlow id="Flow_13218j5" sourceRef="Activity_1cfdd8y" targetRef="Event_0t4gizk" />
+    <bpmn:scriptTask id="Activity_1cfdd8y" name="moveRocketToPlatform" scriptFormat="javascript">
+      <bpmn:incoming>Flow_0oosod8</bpmn:incoming>
+      <bpmn:outgoing>Flow_13218j5</bpmn:outgoing>
+      <bpmn:script>var system = java.lang.System;
+system.out.println('moving rocker to platform');</bpmn:script>
+    </bpmn:scriptTask>
   </bpmn:process>
-  <bpmn:category id="Category_1l0gua4">
-    <bpmn:categoryValue id="CategoryValue_0bbnabu" />
-  </bpmn:category>
   <bpmn:message id="Message_023oeuj" name="abortMission" />
+  <bpmn:message id="Message_0ig1wgm" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_72637734-577e-4f87-9ebf-65e88b570289">
-      <bpmndi:BPMNEdge id="Flow_0agkuqx_di" bpmnElement="Flow_0agkuqx">
-        <di:waypoint x="588" y="510" />
-        <di:waypoint x="707" y="510" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_13218j5_di" bpmnElement="Flow_13218j5">
         <di:waypoint x="1350" y="220" />
         <di:waypoint x="1432" y="220" />
@@ -114,25 +127,10 @@
         <di:waypoint x="188" y="235" />
         <di:waypoint x="260" y="235" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_0h59ly0_di" bpmnElement="Event_0kymjb7">
-        <dc:Bounds x="707" y="492" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="686" y="535" width="78" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1cfdd8y_di" bpmnElement="Activity_1cfdd8y">
-        <dc:Bounds x="1250" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_184xctv_di" bpmnElement="Event_0t4gizk">
         <dc:Bounds x="1432" y="202" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1418" y="245" width="65" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_16ulxop_di" bpmnElement="Event_0j9oz9y">
-        <dc:Bounds x="552" y="492" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="537" y="535" width="66" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
@@ -140,6 +138,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ennrch_di" bpmnElement="Activity_178yfno">
         <dc:Bounds x="260" y="195" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hosv3l_di" bpmnElement="Activity_1cfdd8y">
+        <dc:Bounds x="1250" y="180" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1yiykfi_di" bpmnElement="Activity_0ffwgr3" isExpanded="true">
         <dc:Bounds x="460" y="80" width="700" height="310" />
@@ -194,8 +195,31 @@
       <bpmndi:BPMNShape id="Activity_1sr73kz_di" bpmnElement="Activity_0qir926">
         <dc:Bounds x="850" y="250" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Group_1qjhl91_di" bpmnElement="Group_1qjhl91">
-        <dc:Bounds x="460" y="430" width="450" height="220" />
+      <bpmndi:BPMNShape id="Activity_0c2a29i_di" bpmnElement="Activity_0zzeygg" isExpanded="true">
+        <dc:Bounds x="460" y="430" width="620" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_04zlpa8_di" bpmnElement="Flow_04zlpa8">
+        <di:waypoint x="588" y="510" />
+        <di:waypoint x="710" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19cp6q1_di" bpmnElement="Flow_19cp6q1">
+        <di:waypoint x="810" y="510" />
+        <di:waypoint x="942" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1miywvt_di" bpmnElement="Event_0j9oz9y">
+        <dc:Bounds x="552" y="492" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="537" y="535" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1adc2s3_di" bpmnElement="Event_0kymjb7">
+        <dc:Bounds x="942" y="492" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="921" y="535" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fbjx8d_di" bpmnElement="Activity_1nd95ya">
+        <dc:Bounds x="710" y="470" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
